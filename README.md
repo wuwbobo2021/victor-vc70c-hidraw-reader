@@ -4,6 +4,6 @@ More infomation is included in `vc_hidraw.h`.
 
 # Testing
 Use these commands to make sure this program works on your computer with your multimeter connected.
-`git clone https://github.com/wuwbobo2021/victor-vc70c-hidraw-reader/ victor-vc70c-hidraw-reader/`
-`cd victor-vc70c-hidraw-reader`
-`sudo make`
+`git clone https://github.com/wuwbobo2021/victor-vc70c-hidraw-reader/ victor-vc70c-hidraw-reader/
+`cd victor-vc70c-hidraw-reader
+sudo make`
