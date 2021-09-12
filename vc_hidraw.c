@@ -1,12 +1,21 @@
-// victor-vc70c-hidraw-reader 1.00
+/*
+    victor-vc70c-hidraw-reader Version 1.00
+    A decoding program for VICTOR VC70C/86C/86D Multimeter as computer device.
+    Copyright (C) 2021 wuwbobo2021 <wuwbobo@outlook.com>
 
-// Without any warranty.
-// In the purpose of bug reporting and version identification,
-// anyone who modifies the code should remain this comment and add
-// a record with an email address and the modifying date included.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-// Version 1.00 (2021-9-8, wuwbobo@outlook.com)
-// Original version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 
 #include <stdio.h>
 #include <string.h>
