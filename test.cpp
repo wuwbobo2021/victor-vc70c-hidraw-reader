@@ -1,4 +1,5 @@
 #include <iostream>
+#include "unistd.h"
 #include "vc_hidraw.h"
 
 using namespace std;
@@ -16,7 +17,7 @@ int main(){
 			cout << reading.str << '\n';
 		else {
 			cout << "?\n";
-			sleep(0.1);
+			sleep(0.5);
 		}
 	}
 	

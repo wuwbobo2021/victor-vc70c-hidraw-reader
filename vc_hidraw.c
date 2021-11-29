@@ -37,6 +37,9 @@
 
 typedef unsigned char BYTE;
 
+// 0 <= digit <= 7
+#define Byte_Bit(b, digit) ((b >> digit) & 0x01)
+
 const int VC_HID_Vendor_Number = 0x1244;
 const int VC_HID_Product_Number = 0xD237;
 
@@ -93,12 +96,6 @@ const BYTE VC_HID_Digit_Decoding[4][16]
 const BYTE VC_HID_Decimal_Decoding[16] // e+0, 1, 2, 3
 	=  {0, N, N, N, N, N, N, N, 3, N, 2, N, 1, N, N, N};  // buf[0x5], low: 0x4
 
-
-bool byte_bit(BYTE b, BYTE digit){
-	if (digit < 0 || digit > 7) return false;
-	return ((b >> digit) & 0x01);
-}
-
 int vc_fd; bool vc_found;
 
 bool open_vc_multimeter_hidraw(){
@@ -138,8 +135,8 @@ bool read_vc_multimeter_hidraw(vc_multimeter_reading* reading){
 	res = read(vc_fd, buf, HIDRAW_BUFFER_SIZE);
 	if (res < VC_HID_Valid_Buffer_Size) return false;
 	
-	reading->minus = byte_bit(buf[VC_HID_Polarity_Byte], VC_HID_Minus_Bit);
-	reading->AC = ! byte_bit(buf[VC_HID_DCAC_Byte], VC_HID_DC_Bit);
+	reading->minus = Byte_Bit(buf[VC_HID_Polarity_Byte], VC_HID_Minus_Bit);
+	reading->AC = ! Byte_Bit(buf[VC_HID_DCAC_Byte], VC_HID_DC_Bit);
 	
 	reading->str[0] = (reading->minus? '-' : ' ');
 	
@@ -199,8 +196,8 @@ bool read_vc_multimeter_hidraw(vc_multimeter_reading* reading){
 	}
 	
 	BYTE t = buf[VC_HID_Signs_Byte];
-	reading->low_battery_voltage = ! byte_bit(t, VC_HID_Low_Battery_Voltage_Bit);
-	if (! byte_bit(t, VC_HID_Unit_n_Bit)){
+	reading->low_battery_voltage = ! Byte_Bit(t, VC_HID_Low_Battery_Voltage_Bit);
+	if (! Byte_Bit(t, VC_HID_Unit_n_Bit)){
 		reading->value /= 1000*1000*1000;
 		strcat(reading->str, "n");
 	}

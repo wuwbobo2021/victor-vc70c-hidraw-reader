@@ -53,12 +53,12 @@ typedef enum vc_multimeter_unit{
 
 typedef struct vc_multimeter_reading{
 	float value;
-	bool minus;
-	vc_multimeter_unit unit;
-	bool AC;
-	bool percent_unit;
-	bool ol; //open-loop
-	bool low_battery_voltage; //battery of multimeter itself
+	vc_multimeter_unit unit : 3; 
+	bool minus : 1;
+	bool AC : 1;
+	bool percent_unit : 1;
+	bool ol : 1; //open-loop
+	bool low_battery_voltage : 1; //battery of multimeter itself
 	
 	char str[21]; // 1 (' ' or '-') + 5 (decimal number) + 1 (' ') + 3 (numeric unit) +
 	              // 3 (unit) + 3 (DC/AC) + 4 (low capacity indication) + 1 ('\0')
