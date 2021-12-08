@@ -11,7 +11,7 @@ sudo make
 ```
 
 ## Known Problems
-1. Currently this library is only for Linux platform;
+1. Currently this program is only for Linux platform;
 2. Root authority is required to access the VC70C hidraw device;
 3. `read_vc_multimeter_hidraw(vc_multimeter_reading*)` will block the current thread until next data is received. This may cause inconvenience of using this library.
 4. (minor) When the multimeter is not measuring anything, AC/DC indication in the reading string may be incorrect.
