@@ -35,34 +35,34 @@
 
 #include "vc_hidraw.h"
 
-typedef unsigned char BYTE;
-
+// digits of bits in a BYTE are 0~7, in which 7th bit is the highest bit
 // 0 <= digit <= 7
 #define Byte_Bit(b, digit) ((b >> digit) & 0x01)
 
-const int VC_HID_Vendor_Number = 0x1244;
-const int VC_HID_Product_Number = 0xD237;
+#define VC_HID_Vendor_Number 0x1244
+#define VC_HID_Product_Number 0xD237
 
-const BYTE VC_HID_Valid_Buffer_Size = 13;
+#define VC_HID_Valid_Buffer_Size 13
 
-// digits of bits in a BYTE are 0~7, in which 7th bit is the highest bit
+#define VC_HID_Unit_Byte 0x8
 
-const BYTE VC_HID_Unit_Byte = 0x8;
+#define VC_HID_Polarity_Byte 0x4
+#define VC_HID_Minus_Bit 0 //0: positive  1: minus
 
-const BYTE VC_HID_Polarity_Byte = 0x4;
-const BYTE VC_HID_Minus_Bit = 0; //0: positive  1: minus
+#define VC_HID_DCAC_Byte 0x1
+#define VC_HID_DC_Bit 5 //1: DC  0: AC
 
-const BYTE VC_HID_DCAC_Byte = 0x1;
-const BYTE VC_HID_DC_Bit = 5; //1: DC  0: AC
+#define VC_HID_OL_Byte 0x9
+#define VC_HID_Numeric_Unit_Byte 0xC
+#define VC_HID_Decimal_Byte 0x5
 
-const BYTE VC_HID_OL_Byte = 0x9;
+#define VC_HID_Signs_Byte 0x2
+#define VC_HID_Low_Battery_Voltage_Bit 5 //0: multimeter battery has low capacity
+#define VC_HID_Unit_n_Bit 6 //0: numeric unit is n
+
+typedef unsigned char BYTE;
+
 const BYTE VC_HID_Value_Byte[4] = {0xA, 0x3, 0x9, 0x6};
-const BYTE VC_HID_Numeric_Unit_Byte = 0xC;
-const BYTE VC_HID_Decimal_Byte = 0x5;
-
-const BYTE VC_HID_Signs_Byte = 0x2;
-const BYTE VC_HID_Low_Battery_Voltage_Bit = 5; //0: multimeter battery has low capacity
-const BYTE VC_HID_Unit_n_Bit = 6; //0: numeric unit is n
 
 enum{
 	VC_HID_Unit_V = 0x6A,
@@ -84,17 +84,16 @@ enum{
 
 const BYTE VC_HID_OL = 0xBF;
 
-#define N (0xFF)
 const BYTE VC_HID_Digit_Byte_Low[4] = {0x7, 0x1, 0xF, 0x1};
-const BYTE VC_HID_Digit_Decoding[4][16]
+const BYTE VC_HID_Digit_Decoding[4][16] //0xF means cannot decode
      // 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F (from high-order 4 bits)
-	= {{9, 5, N, 3, N, 7, N, 0, 8, 4, N, 2, N, 6, N, 1},  // buf[0xA], low: 0x7
-	   {9, 5, N, 3, N, 7, N, 0, 8, 4, N, 2, N, 6, N, 1},  // buf[0x3], low: 0x1
-	   {5, N, 3, N, 7, N, 0, 8, 4, N, 2, N, 6, N, 1, 9},  // buf[0x9], low: 0xF  BF: OL
-	   {1, 9, 5, N, 3, N, 7, N, 0, 8, 4, N, 2, N, 6, N}}; // buf[0x6], low: 0x1
+	= {{9,   5, 0xF,   3, 0xF,   7, 0xF,   0,   8,   4, 0xF,   2, 0xF,   6, 0xF,   1},  // buf[0xA], low: 0x7
+	   {9,   5, 0xF,   3, 0xF,   7, 0xF,   0,   8,   4, 0xF,   2, 0xF,   6, 0xF,   1},  // buf[0x3], low: 0x1
+	   {5, 0xF,   3, 0xF,   7, 0xF,   0,   8,   4, 0xF,   2, 0xF,   6, 0xF,   1,   9},  // buf[0x9], low: 0xF  BF: OL
+	   {1,   9,   5, 0xF,   3, 0xF,   7, 0xF,   0,   8,   4, 0xF,   2, 0xF,   6, 0xF}}; // buf[0x6], low: 0x1
 
 const BYTE VC_HID_Decimal_Decoding[16] // e+0, 1, 2, 3
-	=  {0, N, N, N, N, N, N, N, 3, N, 2, N, 1, N, N, N};  // buf[0x5], low: 0x4
+	=  {0, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 0xF, 3, 0xF, 2, 0xF, 1, 0xF, 0xF, 0xF};  // buf[0x5], low: 0x4
 
 int vc_fd; bool vc_found;
 
@@ -154,7 +153,7 @@ bool read_vc_multimeter_hidraw(vc_multimeter_reading* reading){
 				return false; //invalid data
 			
 			dg = VC_HID_Digit_Decoding[i][buf[VC_HID_Value_Byte[i]] >> 4];
-			if (dg == N) return false; //invalid data
+			if (dg == 0xF) return false; //invalid data
 			
 			reading->value += dg * level;
 			chdg[i] = dg + 0x30; //transfer to ASCII character
@@ -163,6 +162,7 @@ bool read_vc_multimeter_hidraw(vc_multimeter_reading* reading){
 		} // now reading->value is x.xxx
 		
 		BYTE d = VC_HID_Decimal_Decoding[buf[VC_HID_Decimal_Byte] >> 4];
+		if (d == 0xF) return false; //invalid data
 		for (BYTE i = 0; i < d; i++) reading->value *= 10.0;
 		
 		BYTE j = 0;
